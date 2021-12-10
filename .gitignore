@@ -1,0 +1,13 @@
+node_modules/
+.DS_Store
+.idea
+.vscode
+.vercel
+.env
+
+#Hardhat files
+cache
+artifacts
+coverage.json
+coverage
+typechain-types
