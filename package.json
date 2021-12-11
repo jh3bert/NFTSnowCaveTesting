@@ -24,10 +24,9 @@
     "prettier:sol:write": "prettier --write 'contracts/**/*.sol'",
     "deploy:localhost": "hardhat --network localhost deploy",
     "deploy:mumbai": "hardhat --network mumbai deploy",
-    "deploy:rinkeby": "hardhat --network rinkeby deploy",
-    "deploy:ethereum": "hardhat --network ethereum deploy",
-    "verify:rinkeby": "hardhat etherscan-verify --network rinkeby --solc-input",
-    "verify:ethereum": "hardhat etherscan-verify --network ethereum"
+    "deploy:polygon": "hardhat --network polygon deploy",
+    "verify:mumbai": "hardhat verify --network mumbai --constructor-args arguments.js",
+    "verify:polygon": "hardhat etherscan-verify --network polygon --constructor-args arguments.js"
   },
   "author": "concave",
   "license": "MIT",

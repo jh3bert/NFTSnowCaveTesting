@@ -26,7 +26,7 @@ const config: HardhatUserConfig = {
     currency: 'USD',
     enabled: true,
     coinmarketcap: process.env.COINMARKETCAP_API_KEY,
-    gasPrice: 100, // in gwei
+    gasPrice: 20, // in gwei
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
@@ -48,17 +48,17 @@ const config: HardhatUserConfig = {
       // defaultPrivateKey,
       // ]
     },
-    rinkeby: {
-      chainId: 4,
-      url: `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`,
+    mumbai: {
+      chainId: 80001,
+      url: 'https://rpc-mumbai.maticvigil.com', //`https://polygon-mumbai.infura.io/v3/${process.env.INFURA_API_KEY}`,
       gasPrice: parseUnits('1', 'gwei').toNumber(),
-      accounts: [process.env.RINKEBY_DEPLOYER_PRIVATE_KEY || defaultPrivateKey],
+      accounts: [process.env.MUMBAI_DEPLOYER_PRIVATE_KEY || defaultPrivateKey],
     },
-    ethereum: {
-      chainId: 1,
-      url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      gasPrice: parseUnits('59', 'gwei').toNumber(),
-      accounts: [process.env.MAINNET_DEPLOYER_PRIVATE_KEY || defaultPrivateKey],
+    polygon: {
+      chainId: 137,
+      url: 'https://polygon-rpc.com', //`https://polygon-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      gasPrice: parseUnits('20', 'gwei').toNumber(),
+      accounts: [process.env.POLYGON_DEPLOYER_PRIVATE_KEY || defaultPrivateKey],
     },
   },
 }
