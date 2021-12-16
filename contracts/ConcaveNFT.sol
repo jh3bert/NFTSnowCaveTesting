@@ -109,9 +109,9 @@ contract ConcaveNFT is ERC721Enumerable, Ownable {
   function withdraw() public payable onlyOwner {
     uint256 bal = address(this).balance;
 
-    uint256 mrHeb = (bal * 35) / 100;
+    uint256 mrHeb = (bal * 40) / 100;
     uint256 dbp = (bal * 10) / 100;
-    uint256 mar = (bal * 25) / 100;
+    uint256 mar = (bal * 20) / 100;
     // uint256 wg = bal *.3;
 
     payable(0x939deceC052193035C61B96565f49b4262C462A5).transfer(mrHeb);

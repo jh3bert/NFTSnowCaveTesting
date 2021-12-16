@@ -6,7 +6,7 @@ const { waffle, ethers } = require("hardhat");
 
 const baseExtension = ".json";
 const cost = 0.05;
-const costToWei = ethers.utils.parseEther(cost.toString());
+const costToEther = ethers.utils.parseEther(cost.toString());
 const maxSupply = 5555;
 const maxMintAmount = 10;
 const paused = false;
@@ -76,8 +76,8 @@ describe("SnowCave: Reads public constants & Variables", () => {
     it(`Paused is "${paused}"`, async () => {
         expect(await SnowCave.paused()).to.equal(paused)
     })
-    it(`cost is "${ethers.utils.formatEther(costToWei)}"`, async () => {
-        expect(await SnowCave.cost()).to.equal(costToWei)
+    it(`cost is "${ethers.utils.formatEther(costToEther)}"`, async () => {
+        expect(await SnowCave.cost()).to.equal(costToEther)
     })
     
 })
@@ -211,3 +211,123 @@ describe("SnowCave: Owner Functions", () => {
         }).timeout(0);
     })
 }) 
+
+describe("Public Functions", () => {
+    beforeEach(deploy)
+    describe("tokenURI()", () => {
+      it(`Calling tokenURI() on nonexistent tokenId should revert with "ERC721Metadata: URI query for nonexistent token"`, async () => {
+          await expect(
+              SnowCave.tokenURI(0)
+          ).to.be.revertedWith("ERC721Metadata: URI query for nonexistent token")
+      })
+      it(`Calling tokenURI() on an existing tokenId x after reveal should return "${_initBaseURI}x.json"`, async () => {
+          await mint(3)
+          expect(
+              await SnowCave.tokenURI(1)
+          ).to.equal(`${_initBaseURI}1.json`)
+          expect(
+            await SnowCave.tokenURI(3)
+        ).to.equal(`${_initBaseURI}3.json`)
+      })
+    })
+    describe("walletOfOwner()", () => {
+        it('Calling wallet of Owner with no NFTS should be Empty', async () => {
+          console.log(await SnowCave.walletOfOwner("0x5b62EEE7439Aa1DC64CF0723fFd43894B2823DFF"),'should be empty');
+          expect(await SnowCave.totalSupply()).to.equal(0);
+        })
+        it(`Checking Wallet after Minting 2 NFTs [1,2]`, async () => {
+          await SnowCave.mint("0x5b62EEE7439Aa1DC64CF0723fFd43894B2823DFF", 2,
+           {value:ethers.utils.parseEther((cost*2).toString())});
+           console.log(await SnowCave.walletOfOwner("0x5b62EEE7439Aa1DC64CF0723fFd43894B2823DFF"))
+          expect (
+            await SnowCave.totalSupply()
+          ).to.equal(2);
+        })
+    })
+    describe("getBalance()", () => {
+        it('Calling getBalance() before any nfts are minted should be 0', async () => {
+          expect(
+            await SnowCave.getBalance()
+          ).to.equal(0);
+        })
+        it(`Mint 4 NFTs balance should be ${4*cost}`, async () => {
+          await mint(4);
+          const bal = await SnowCave.getBalance()/(10**18);
+
+          expect(
+            bal
+          ).to.equal(4*cost);
+        })
+        it(`Mint 1 NFT balance should be ${cost}`, async () => {
+          await mint(1);
+          const bal = await SnowCave.getBalance()/(10**18);
+
+          expect(
+            bal
+          ).to.equal(1*cost);
+        })
+    })
+    /*  NOT IN USE NOW
+      describe("_baseURI()", () => {
+        it(`Init Base URI should be ${_initBaseURI}`, async () => {
+          expect(
+            await SnowCave._baseURI()
+          ).to.equal(_initBaseURI);
+        })
+        it(`Set Base URI to Concave/Test`, async () => {
+          await SnowCave.setBaseURI('Concave/Test');
+          expect(
+            await SnowCave._baseURI()
+          ).to.equal("Concave/Test");
+        })
+    }) */
+    describe("mint()", () => {
+        it("Should fail when Paused", async () => {
+          await SnowCave.pause(true);
+          await expect(
+            SnowCave.connect(thirdParty).mint(thirdParty.getAddress(), 
+            1, {value:ethers.utils.parseEther((cost).toString())})
+          ).to.be.revertedWith("not for sale at the moment");
+        })
+        it("Should fail when mintAmt <= 0", async () => {
+          await SnowCave.pause(false);
+          await expect(
+            SnowCave.connect(thirdParty).mint(thirdParty.getAddress(), 
+            0, {value:ethers.utils.parseEther((0*cost).toString())})
+          ).to.be.revertedWith("select mint amount");
+        })
+        it("Should fail when mintAmt > maxMint per tx", async () => {
+          await SnowCave.pause(false);
+          await expect(
+            SnowCave.connect(thirdParty).mint(thirdParty.getAddress(), 
+            11, {value:ethers.utils.parseEther((11*cost).toString())})
+          ).to.be.revertedWith("exceeded max mint amount of ten");
+        })
+       /*  UNCOMMENT TO TEST BUT RUNTIME IS LONG (45SEC)
+
+
+          it("Should fail when mintAmt + supply > maxsupply", async () => {
+          await SnowCave.pause(false);
+          await mint(5551);
+          await expect(
+            SnowCave.connect(thirdParty).mint(thirdParty.getAddress(), 
+            5, {value:ethers.utils.parseEther((5*cost).toString())})
+          ).to.be.revertedWith("not enough supply");
+        }).timeout(0); */
+        it("Should fail if msg.value < price*mintAmt", async () => {
+          await SnowCave.pause(false);
+
+          await expect (
+            SnowCave.connect(thirdParty).mint(thirdParty.getAddress(), 5)
+          ).to.be.revertedWith("insufficient funds");
+        })
+        it("Successful Mint with !pause, 0 < mintAmt <= 10, enough supply", async () => {
+          await SnowCave.pause(false);
+
+          await expect (
+            SnowCave.connect(thirdParty).mint(thirdParty.getAddress(), 
+            4, {value:ethers.utils.parseEther((4*cost).toString())})
+          ).to.not.be.reverted;
+        })
+    })
+})
