@@ -22,28 +22,28 @@ describe('ConcaveNFT', function () {
   })
 
   it('Should get max token id', async () => {
-    const maxTokenId = await memory.ConcaveNFT.maxTokenId()
-    expect(maxTokenId).to.be.eq('3')
+    const maxTokenId = await memory.ConcaveNFT.maxMintAmount()
+    expect(maxTokenId).to.be.eq('10')
   })
 
   it('Should mint', async () => {
-    await memory.ConcaveNFT.mint('1')
+    await memory.ConcaveNFT.mint(memory.other1.address, 1)
     expect(await memory.ConcaveNFT.balanceOf(memory.other1.address)).to.be.eq(
       '1'
     )
   })
 
   it('Should mint many from same address', async () => {
-    await memory.ConcaveNFT.mint('1')
-    await memory.ConcaveNFT.mint('2')
+    await memory.ConcaveNFT.mint(memory.other1.address, 1)
+    await memory.ConcaveNFT.mint(memory.other1.address, 2)
     expect(await memory.ConcaveNFT.balanceOf(memory.other1.address)).to.be.eq(
       '2'
     )
   })
 
   it('Should mint many from different address', async () => {
-    await memory.ConcaveNFT.mint('1')
-    await memory.ConcaveNFT.connect(memory.other2).mint('2')
+    await memory.ConcaveNFT.mint(memory.other1.address, 1)
+    await memory.ConcaveNFT.connect(memory.other2).mint(memory.other1.address, 2)
     expect(await memory.ConcaveNFT.balanceOf(memory.other1.address)).to.be.eq(
       '1'
     )
@@ -53,7 +53,7 @@ describe('ConcaveNFT', function () {
   })
 
   it('Should throw when token Id higher than max allowed', async () => {
-    await expect(memory.ConcaveNFT.mint('5')).to.be.revertedWith(
+    await expect(memory.ConcaveNFT.mint(memory.other1.address, 11)).to.be.revertedWith(
       'Token id is higher than max token id'
     )
   })

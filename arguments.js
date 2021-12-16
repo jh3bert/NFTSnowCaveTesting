@@ -1,1 +1,5 @@
-module.exports = [3]
+module.exports = [
+    "SnowCaveTest",
+    "SNOW",
+    "testURI",
+];
