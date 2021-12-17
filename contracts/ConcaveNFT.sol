@@ -44,7 +44,8 @@ contract ConcaveNFT is ERC721Enumerable, Ownable {
     }
 
     for (uint256 i = 1; i <= _mintAmount; i++) {
-      _safeMint(_to, supply + i);
+      uint256 txID = totalSupply() +1;
+      _safeMint(_to, txID);
     }
   }
 
