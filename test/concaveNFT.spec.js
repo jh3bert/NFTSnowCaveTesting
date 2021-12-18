@@ -13,7 +13,7 @@ const paused = false;
 
 //constructor variables
 
-const _name = "SnowCaveTest";
+const _name = "SnowCave";
 const _symbol = "SNOW"
 const _initBaseURI = "https://gateway.pinata.cloud/ipfs/QmaytFJQnN5yv1yfDn8y23zt1f1jpLo9WE2QYVeKWNtjdk/";
 
@@ -46,7 +46,7 @@ const deploy = async () => {
 const mint = async (amount) => {
     while (amount > 0) {
       let atOnce = amount > 10 ? 10: amount; 
-      await SnowCave.connect(thirdParty).mint(thirdParty.getAddress(), atOnce, {value:ethers.utils.parseEther((cost*atOnce).toString())})
+      await SnowCave.connect(thirdParty).mint(thirdParty.getAddress(), atOnce, {value:ethers.utils.parseEther((atOnce*cost).toString())})
       amount -= atOnce;
     }
 }
@@ -221,10 +221,7 @@ describe("Public Functions", () => {
           ).to.be.revertedWith("ERC721Metadata: URI query for nonexistent token")
       })
       it(`Calling tokenURI() on an existing tokenId x after reveal should return "${_initBaseURI}x.json"`, async () => {
-          await mint(3)
-          expect(
-              await SnowCave.tokenURI(1)
-          ).to.equal(`${_initBaseURI}1.json`)
+          await mint(4);
           expect(
             await SnowCave.tokenURI(3)
         ).to.equal(`${_initBaseURI}3.json`)
@@ -253,7 +250,6 @@ describe("Public Functions", () => {
         it(`Mint 4 NFTs balance should be ${4*cost}`, async () => {
           await mint(4);
           const bal = await SnowCave.getBalance()/(10**18);
-
           expect(
             bal
           ).to.equal(4*cost);
@@ -323,10 +319,10 @@ describe("Public Functions", () => {
         })
         it("Successful Mint with !pause, 0 < mintAmt <= 10, enough supply", async () => {
           await SnowCave.pause(false);
-
+          
           await expect (
             SnowCave.connect(thirdParty).mint(thirdParty.getAddress(), 
-            4, {value:ethers.utils.parseEther((4*cost).toString())})
+            3, {value: ethers.utils.parseEther((3*cost).toString())})
           ).to.not.be.reverted;
         })
     })
