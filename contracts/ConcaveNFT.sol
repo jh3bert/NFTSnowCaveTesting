@@ -12,14 +12,11 @@ import "@openzeppelin/contracts/utils/Counters.sol";
  */
 contract ConcaveNFT is ERC721Enumerable, Ownable {
     using Strings for uint256;
-    using Counters for Counters.Counter;
-
-    Counters.Counter private _tokenIDs;
 
     string public baseURI;
     //string public cid;
     string public baseExtension = ".json";
-    uint256 public cost = 0.05 ether;
+    uint256 public cost = 5 ether;      //matic
     uint256 public constant maxSupply = 5555;
     uint256 public maxMintAmount = 10;
     bool public paused = false;
@@ -37,16 +34,20 @@ contract ConcaveNFT is ERC721Enumerable, Ownable {
         return baseURI;
     }
 
-    function mint(address _to, uint256 _mintAmount) public payable {
+    function mint(address _to, uint256 _mintAmount) external payable {
         uint256 supply = totalSupply();
         require(!paused, "not for sale at the moment");
         require(_mintAmount > 0, "select mint amount");
         require(_mintAmount <= maxMintAmount, "exceeded max mint amount of ten");
         require(supply + _mintAmount <= maxSupply, "not enough supply");
-        require(msg.value == cost * _mintAmount, "insufficient funds");
+        if(msg.sender != owner()) {
+            require(msg.value == cost * _mintAmount, "insufficient funds");
+        }
         
         for (uint256 i = 1; i <= _mintAmount; i++) {
-            _mintOnce(_to);
+            uint256 id = totalSupply()+1;
+            require(id <= maxSupply, "not enough supply");
+            _safeMint(_to, id);
         }
     }
 
@@ -121,9 +122,5 @@ contract ConcaveNFT is ERC721Enumerable, Ownable {
     }
 
     //internal use
-    function _mintOnce(address to) internal {
-        uint256 newItemId = _tokenIDs.current();
-        _tokenIDs.increment();
-        _safeMint(to, newItemId);
-    }
+ 
 }
